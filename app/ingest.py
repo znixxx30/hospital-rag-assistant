@@ -2,7 +2,9 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 
-def load_split_embed(file_path: str):
+from app.db import supabase
+
+def load_split_embed_store(file_path: str):
     # Load PDF
     loader = PyPDFLoader(file_path)
     documents = loader.load()
@@ -16,20 +18,23 @@ def load_split_embed(file_path: str):
 
     print(f"Total chunks: {len(chunks)}")
 
-    # Load free embedding model
+    # Embeddings
     model = SentenceTransformer("all-MiniLM-L6-v2")
-
-    # Convert chunks → embeddings
     texts = [chunk.page_content for chunk in chunks]
     vectors = model.encode(texts)
 
-    # Preview
-    for i in range(2):
-        print(f"\n--- Sample Embedding {i+1} ---")
-        print(vectors[i][:10])
+    # Insert into Supabase
+    for i, chunk in enumerate(chunks):
+        data = {
+            "content": chunk.page_content,
+            "embedding": vectors[i].tolist(),  # IMPORTANT
+            "metadata": {"page": chunk.metadata.get("page", 0)}
+        }
 
-    return chunks, vectors
+        supabase.table("documents").insert(data).execute()
+
+    print("✅ Data inserted into Supabase")
 
 
 if __name__ == "__main__":
-    chunks, vectors = load_split_embed("data/ai_ml_doc_assignement.pdf")
+    load_split_embed_store("data/ai_ml_doc_assignement.pdf")
