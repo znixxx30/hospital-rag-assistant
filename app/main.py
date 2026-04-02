@@ -36,8 +36,14 @@ async def upload(file: UploadFile = File(...)):
     return {"message": "Document uploaded and processed successfully"}
 
 
-# (temporary simple query — will improve in next step)
 @app.post("/query")
 def query(req: QueryRequest):
-    answer = generate_answer(req.question)
-    return {"answer": answer}
+    answer, chunks = generate_answer(req.question)
+
+    # Extract page sources
+    sources = [f"page {c['metadata']['page']}" for c in chunks]
+
+    return {
+        "answer": answer,
+        "sources": list(set(sources))
+    }

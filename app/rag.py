@@ -39,12 +39,8 @@ Question:
         ]
     )
 
-    return response.choices[0].message.content
+    # store answer first
+    answer = response.choices[0].message.content
 
-
-if __name__ == "__main__":
-    q = "What is ICU cost?"
-    answer = generate_answer(q)
-
-    print("\n🤖 Answer:\n")
-    print(answer)
+    # return BOTH
+    return answer, chunks
