@@ -8,7 +8,7 @@ from app.rag import generate_answer
 
 app = FastAPI()
 
-# Temporary chat history (we'll improve later)
+
 chat_history = []
 
 
@@ -38,9 +38,13 @@ async def upload(file: UploadFile = File(...)):
 
 @app.post("/query")
 def query(req: QueryRequest):
-    answer, chunks = generate_answer(req.question)
+    answer, chunks = generate_answer(req.question, chat_history)
 
-    # Extract page sources
+    # Save history
+    chat_history.append(f"Q: {req.question}")
+    chat_history.append(f"A: {answer}")
+
+    # Extract sources
     sources = [f"page {c['metadata']['page']}" for c in chunks]
 
     return {
