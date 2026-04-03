@@ -5,11 +5,17 @@ from app.db import supabase
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
-def retrieve_chunks(query: str, top_k: int = 5):
-    # Step 1: Convert query → embedding
-    query_vector = model.encode(query).tolist()
+def retrieve_chunks(query: str, top_k: int = 8):
+    # Normalize query (VERY IMPORTANT)
+    clean_query = query.lower().strip()
 
-    # Step 2: Call Supabase RPC function
+    #  Add small query expansion (improves retrieval)
+    expanded_query = f"{clean_query} hospital information details"
+
+    #  Convert to embedding
+    query_vector = model.encode(expanded_query).tolist()
+
+    #  Call Supabase RPC
     response = supabase.rpc(
         "match_documents",
         {
@@ -18,9 +24,11 @@ def retrieve_chunks(query: str, top_k: int = 5):
         }
     ).execute()
 
-    # Step 3: Safety check
+    #  Safety check
     if not response.data:
         return []
 
-    return response.data
+    #  Sort by similarity (extra safety)
+    results = sorted(response.data, key=lambda x: x["similarity"], reverse=True)
 
+    return results

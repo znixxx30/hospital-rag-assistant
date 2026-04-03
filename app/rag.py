@@ -25,7 +25,9 @@ def generate_answer(question: str, history=None):
     prompt = f"""
 You are a hospital assistant.
 
-Answer the question clearly and completely using ONLY the context.
+Answer using ONLY the provided context.
+Be careful about slight variations in wording.
+
 If answer is not present, say:
 "I don't have that information in the provided document."
 
