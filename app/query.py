@@ -18,17 +18,9 @@ def retrieve_chunks(query: str, top_k: int = 5):
         }
     ).execute()
 
+    # Step 3: Safety check
+    if not response.data:
+        return []
+
     return response.data
 
-
-if __name__ == "__main__":
-    question = "What is ICU cost?"
-    results = retrieve_chunks(question)
-
-    print("\n🔍 Top Results:\n")
-
-    for r in results:
-        print("Content:", r["content"][:200])
-        print("Metadata:", r["metadata"])
-        print("Similarity:", r["similarity"])
-        print("-" * 50)
