@@ -32,17 +32,18 @@ if "history" not in st.session_state:
 
 st.subheader("💬 Ask Questions")
 
-question = st.text_input("Enter your question:")
+with st.form(key="chat_form", clear_on_submit=True):
+    question = st.text_input("Enter your question:")
+    submit = st.form_submit_button("Ask")
 
-if st.button("Ask"):
-    if question:
-        with st.spinner("Thinking..."):
-            answer, _ = generate_answer(question, st.session_state.history)
+if submit and question:
+    with st.spinner("Thinking..."):
+        answer, _ = generate_answer(question, st.session_state.history)
 
-        # Save history
-        st.session_state.history.append(f"Q: {question}")
-        st.session_state.history.append(f"A: {answer}")
-
+    # Save history
+    st.session_state.history.append(f"Q: {question}")
+    st.session_state.history.append(f"A: {answer}")
+    
 # ------------------ DISPLAY CHAT ------------------
 st.subheader("💬 Chat History")
 
