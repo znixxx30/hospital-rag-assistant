@@ -38,12 +38,17 @@ with st.form(key="chat_form", clear_on_submit=True):
 
 if submit and question:
     with st.spinner("Thinking..."):
-        answer, _ = generate_answer(question, st.session_state.history)
+        answer, chunks = generate_answer(question, st.session_state.history)
+
+    # Extract sources
+    sources = [f"page {c['metadata']['page']}" for c in chunks]
+    sources = list(set(sources))
 
     # Save history
     st.session_state.history.append(f"Q: {question}")
-    st.session_state.history.append(f"A: {answer}")
-    
+    st.session_state.history.append(
+        f"A: {answer} (Sources: {', '.join(sources)})"
+    )
 # ------------------ DISPLAY CHAT ------------------
 st.subheader("💬 Chat History")
 
